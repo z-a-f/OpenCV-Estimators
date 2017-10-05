@@ -1,14 +1,9 @@
 #ifndef DECISION_TREE_CLASSIFIER_H_
 #define DECISION_TREE_CLASSIFIER_H_
 
-#include <opencv2/ml.hpp>
+#include <opencv/cv.hpp>
+#include <opencv/ml.h>
 #include "tree_config.h"
-
-using TrackFeaturesVector = cv::Mat;
-using TrackLabelVector = cv::Mat;
-
-using TreePredictFlags = cv::ml::DTrees::Flags;
-using DataSampleTypes = cv::ml::SampleTypes;
 
 class DecisionTreeClassifier {
 public:
@@ -18,12 +13,12 @@ public:
     void Configure(const TreeConfig& config);
 
     // Trains the classifier.
-    bool Fit(const TrackFeaturesVector& X, const TrackLabelVector& y);
+    bool Fit(const cv::Mat& X, const cv::Mat& y);
     // Predicts the labels for X.
-    void Predict(const TrackFeaturesVector& X, TrackLabelVector& y_hat);
-    float Predict(const TrackFeaturesVector& X);
+    void Predict(const cv::Mat& X, cv::Mat& y_hat);
+    float Predict(const cv::Mat& X);
     // Predicts the labels for X, and returns probabilities instead of labels.
-    std::vector<std::vector<double>> PredictProb(const TrackFeaturesVector& X);
+    std::vector<std::vector<double>> PredictProb(const cv::Mat& X);
 
     // Dumps the current tree configuration to a file.
     void Save(std::string filename);

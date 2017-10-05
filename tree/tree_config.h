@@ -1,6 +1,8 @@
 #ifndef TREE_CONFIG_H_
 #define TREE_CONFIG_H_
 
+#include <vector>
+
 struct TreeConfig {
     // Maximum depth of the tree. If -1, use default.
     int max_depth;
