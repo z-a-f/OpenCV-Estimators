@@ -25,7 +25,8 @@ int main(int, char**)
     DecisionTreeClassifier tree;
     tree.tree()->setCVFolds(0);
     std::cout << "Training the tree..." << std::endl;
-    tree.Fit(trainingDataMat, labelsMat);
+    // tree.Fit(trainingDataMat, labelsMat);
+    tree.tree()->train(trainingDataMat, cv::ml::SampleTypes::ROW_SAMPLE, labelsMat);
     std::cout << "Trained: " << tree.is_trained() << std::endl;
     Vec3b green(0,255,0), blue (255,0,0);
     for (int i = 0; i < image.rows; ++i)
