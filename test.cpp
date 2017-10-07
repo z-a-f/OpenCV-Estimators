@@ -1,68 +1,14 @@
-// #include "tree/decision_tree_classifier.h"
 
-// #include <iostream>
-
-// #include <cv.h>
-// //  #include <opencv/imgproc.h>
-// // #include <opencv/imgcodecs.h>
-// // #include <opencv/highgui.h>
+#include <iostream>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 // #include <opencv/ml.h>
 
-// using namespace cv;
-// using namespace cv::ml;
+#include "estimator.hpp"
+#include "svm/svm.h"
+#include "tree/decision_tree.h"
 
-// int main(int, char**)
-// {
-//     // Data for visual representation
-//     int width = 512, height = 512;
-//     Mat image = Mat::zeros(height, width, CV_8UC3);
-//     // Set up training data
-//     int labels[4] = {1, -1, -1, -1};
-//     float trainingData[4][2] = { {501, 10}, {255, 10}, {501, 255}, {10, 501} };
-//     Mat trainingDataMat(4, 2, CV_32FC1, trainingData);
-//     Mat labelsMat(4, 1, CV_32SC1, labels);
-//     std::cout << "Creating tree..." << std::endl;
-//     DecisionTreeClassifier tree;
-//     tree.tree()->setCVFolds(0);
-//     std::cout << "Training the tree..." << std::endl;
-//     // tree.Fit(trainingDataMat, labelsMat);
-//     tree.tree()->train(trainingDataMat, cv::ml::SampleTypes::ROW_SAMPLE, labelsMat);
-//     std::cout << "Trained: " << tree.is_trained() << std::endl;
-//     Vec3b green(0,255,0), blue (255,0,0);
-//     for (int i = 0; i < image.rows; ++i)
-//         for (int j = 0; j < image.cols; ++j)
-//         {
-//             Mat sampleMat = (Mat_<float>(1,2) << j,i);
-//             float response = tree.Predict(sampleMat);
-//             if (response == 1)
-//                 image.at<Vec3b>(i,j)  = green;
-//             else if (response == -1)
-//                 image.at<Vec3b>(i,j)  = blue;
-//         }
-//     // // Show the training data
-//     // int thickness = -1;
-//     // int lineType = 8;
-//     // circle( image, Point(501,  10), 5, Scalar(  0,   0,   0), thickness, lineType );
-//     // circle( image, Point(255,  10), 5, Scalar(255, 255, 255), thickness, lineType );
-//     // circle( image, Point(501, 255), 5, Scalar(255, 255, 255), thickness, lineType );
-//     // circle( image, Point( 10, 501), 5, Scalar(255, 255, 255), thickness, lineType );
-//     // // Show support vectors
-//     // // thickness = 2;
-//     // // lineType  = 8;
-//     // // Mat sv = svm->getUncompressedSupportVectors();
-//     // // for (int i = 0; i < sv.rows; ++i)
-//     // // {
-//     // //     const float* v = sv.ptr<float>(i);
-//     // //     circle( image,  Point( (int) v[0], (int) v[1]),   6,  Scalar(128, 128, 128), thickness, lineType);
-//     // // }
-//     // imwrite("result.png", image);        // save the image
-//     // imshow("SVM Simple Example", image); // show it to the user
-//     // waitKey(0);
-// }
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/ml/ml.hpp>
+#include "utils/make_synthetic.h"
 
 using namespace cv;
 
@@ -80,28 +26,49 @@ int main()
     Mat trainingDataMat(4, 2, CV_32FC1, trainingData);
 
     // Set up SVM's parameters
-    CvSVMParams params;
-    params.svm_type    = CvSVM::C_SVC;
-    params.kernel_type = CvSVM::LINEAR;
-    params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+    // cv::Ptr<CvSVMParams> params(new CvSVMParams);
+    // params->svm_type    = CvSVM::C_SVC;
+    // params->kernel_type = CvSVM::LINEAR;
+    // params->term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 
-    // Train the SVM
-    CvSVM SVM;
-    SVM.train(trainingDataMat, labelsMat, Mat(), Mat(), params);
+    // estimator::SVM cls;
+    // cls.Load("test.model");
 
-    Vec3b green(0,255,0), blue (255,0,0);
+    // Set up DT's parameters
+    estimator::DecisionTree cls;
+
+    cv::Ptr<CvDTreeParams> params(new CvDTreeParams);
+    params->max_depth = 10;
+    params->cv_folds = 1;
+    params->min_sample_count = 0;
+
+    cls.Config(params);
+    cls.Fit(trainingDataMat, labelsMat);
+
+    Vec3b green(0,255,0), blue (255,0,0), red(0, 0, 255);
     // Show the decision regions given by the SVM
+    int red_count = 0, green_count = 0, blue_count = 0;
     for (int i = 0; i < image.rows; ++i)
         for (int j = 0; j < image.cols; ++j)
         {
             Mat sampleMat = (Mat_<float>(1,2) << j,i);
-            float response = SVM.predict(sampleMat);
+            double response = cls.Predict(sampleMat);
+            // float response = SVM.predict(sampleMat);
 
-            if (response == 1)
+            if (response == 1) {
                 image.at<Vec3b>(i,j)  = green;
-            else if (response == -1)
-                 image.at<Vec3b>(i,j)  = blue;
+                ++green_count;
+            } else if (response == -1) {
+                image.at<Vec3b>(i,j)  = blue;
+                ++blue_count;
+             } else {
+                image.at<Vec3b>(i, j) = red;
+                ++red_count;
+             }
         }
+    std::cout << "Red: " << red_count << std::endl;
+    std::cout << "Green: " << green_count << std::endl;
+    std::cout << "Blues: " << blue_count << std::endl;
 
     // Show the training data
     int thickness = -1;
@@ -114,17 +81,21 @@ int main()
     // Show support vectors
     thickness = 2;
     lineType  = 8;
-    int c     = SVM.get_support_vector_count();
+    // int c     = SVM->get_support_vector_count();
+    // int c     = cls->get_support_vector_count();
+    // int c = cls.estimator()->get_support_vector_count();
 
-    for (int i = 0; i < c; ++i)
-    {
-        const float* v = SVM.get_support_vector(i);
-        circle( image,  Point( (int) v[0], (int) v[1]),   6,  Scalar(128, 128, 128), thickness, lineType);
-    }
+    // for (int i = 0; i < c; ++i)
+    // {
+    //     // const float* v = SVM->get_support_vector(i);
+    //     const float* v = cls.estimator()->get_support_vector(i);
+    //     circle( image,  Point( (int) v[0], (int) v[1]),   6,  Scalar(128, 128, 128), thickness, lineType);
+    // }
+    // delete cls;
 
     imwrite("result.png", image);        // save the image
 
-    imshow("SVM Simple Example", image); // show it to the user
-    waitKey(0);
+    // imshow("SVM Simple Example", image); // show it to the user
+    // waitKey(0);
 
 }

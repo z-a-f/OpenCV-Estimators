@@ -39,3 +39,5 @@
 *.jpeg
 *.pdf
 
+# Models
+*.model
