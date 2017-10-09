@@ -6,7 +6,7 @@
 namespace estimator {
 namespace {
 // OpenCV 2 decision trees support different layouts for the data.
-int kDataLayout = CV_ROW_SAMPLE;
+constexpr int kDataLayout = CV_ROW_SAMPLE;
 }
 
 // Trains the classifier.

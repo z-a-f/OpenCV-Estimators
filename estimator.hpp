@@ -8,8 +8,6 @@
 
 template <class E>
 class Estimator {
-    // static_assert(std::is_base_of<BaseDerived, E>::value, 
-    //     "Estimator template must be of BaseEstimator type!");
 public:
     Estimator(cv::Ptr<E> estimator) : estimator_(estimator) {}
     Estimator() : estimator_(cv::Ptr<E>(new E)) {};
