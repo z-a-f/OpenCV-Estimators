@@ -5,6 +5,11 @@
 
 namespace estimator{
 
+// Templated abstract class for estimators. Every estimator should implement
+// the 'Fit' and 'Predict' methods.
+// Template parameters:
+//    E -> Estimator type to be used.
+//    P -> Parameter type.
 template <class E, class P>
 class BaseEstimator {
 public:
@@ -12,14 +17,17 @@ public:
         : estimator_(estimator), params_(0), trained_(false) {}
 
     virtual ~BaseEstimator() {}
-
+    
+    // Saves the configuration for the given estimator.
     virtual void Config(const cv::Ptr<P>& params) { params_ = params; }
 
+    // Fits the estimator.
     virtual bool Fit(const cv::Mat& X, const cv::Mat& y) = 0;
 
+    // Predicts the result of the.
     virtual void Predict(const cv::Mat& X, cv::Mat& y_hat) = 0;
 
-    virtual double Predict(const cv::Mat& X) = 0;
+    virtual float Predict(const cv::Mat& X) = 0;
 
         // Dumps the current tree configuration to a file.
     virtual void Save(const std::string& filename, const char* name = 0) {
@@ -32,11 +40,16 @@ public:
 
     // Getters.
     virtual cv::Ptr<E> estimator() { return estimator_; }
+    virtual bool is_trained() { return trained_; }
 
 protected:
+    // Shared pointer to the estimator.
     cv::Ptr<E> estimator_;
+
+    // Shared pointer to the estimator parameters.
     cv::Ptr<P> params_;
 
+    // Trained flag
     bool trained_;
 };
 

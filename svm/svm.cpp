@@ -19,7 +19,7 @@ bool SVM::Fit(const cv::Mat& X, const cv::Mat& y) {
 void SVM::Predict(const cv::Mat& X, cv::Mat& y_hat) {
     estimator_->predict(X, y_hat);
 }
-double SVM::Predict(const cv::Mat& X) {
+float SVM::Predict(const cv::Mat& X) {
     return estimator_->predict(X);
 }
 

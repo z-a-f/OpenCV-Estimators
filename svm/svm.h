@@ -17,10 +17,7 @@ public:
 
     // Predicts the labels for X.
     void Predict(const cv::Mat& X, cv::Mat& y_hat);
-    double Predict(const cv::Mat& X);
-
-    // Getters.
-    bool is_trained() { return trained_; }
+    float Predict(const cv::Mat& X);
 };
 }  // namespace estimator
 
