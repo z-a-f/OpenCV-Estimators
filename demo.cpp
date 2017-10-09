@@ -1,5 +1,8 @@
 
+#include <cstdlib>
 #include <iostream>
+#include <time.h>
+
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 
@@ -21,6 +24,7 @@ int main() {
 
     Ptr<Mat> X (new Mat(samples, 2, CV_32FC1));
     Ptr<Mat> y (new Mat(samples, 1, CV_32FC1));
+    srand(time(NULL));
     estimator::MakeMoons(height, width, samples, shuffle, noise, X, y);
 
     // Create two classifiers.
@@ -117,7 +121,7 @@ int main() {
     Mat right(image, Rect(width, 0, width, height));
     image_svm.copyTo(right);
 
-    // imwrite("result.png", image);        // save the image
-    imshow("SVM Simple Example", image); // show it to the user
-    waitKey(0);
+    imwrite("result.png", image);        // save the image
+    // imshow("SVM Simple Example", image); // show it to the user
+    // waitKey(0);
 }

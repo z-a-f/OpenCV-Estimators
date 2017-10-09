@@ -35,12 +35,15 @@ void Shuffle(cv::Ptr<cv::Mat> X, cv::Ptr<cv::Mat> y) {
     for (int idx = 0; idx < n; ++idx) {
         const int jdx = std::rand() % (idx + 1);
         if (idx != jdx) {
-            const auto x_row = X->row(idx);
-            X->row(idx) = X->row(jdx);
-            X->row(jdx) = x_row;
-            const auto y_row = y->row(idx);
-            y->row(idx) = y->row(jdx);
-            y->row(jdx) = y_row;  
+            cv::Mat x_temp;
+            X->row(idx).copyTo(x_temp);
+            X->row(jdx).copyTo(X->row(idx));
+            x_temp.copyTo(X->row(jdx));
+
+            cv::Mat y_temp;
+            y->row(idx).copyTo(y_temp);
+            y->row(jdx).copyTo(y->row(idx));
+            y_temp.copyTo(y->row(jdx));
         }
     }
 }
