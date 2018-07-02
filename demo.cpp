@@ -104,6 +104,7 @@ int main() {
         }
     }
 
+    float correct = 0;
     for (int row = 0; row < X->rows; ++row) {
         const int idx = int(X->at<float>(row, 0));
         const int jdx = int(X->at<float>(row, 1));
@@ -112,7 +113,10 @@ int main() {
         } else if (y->at<float>(row, 0) < 0) {
             circle(image_svm, Point(jdx, idx), 5, blue, thickness, lineType);
         }
+        std::cout << y->at<float>(row, 0) << '\t' << cls_svm.Predict(X->row(row)) << std::endl;
+        correct += abs(y->at<float>(row, 0) - cls_svm.Predict(X->row(row))) / 2.;
     }
+    std::cout << 1. - correct / samples << std::endl;
 
     // Merge images.
     Mat image = Mat::zeros(height, width*2, CV_8UC3);
